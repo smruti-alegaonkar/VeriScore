@@ -4,11 +4,13 @@ import Dashboard from "./components/pages/Dashboard";
 import AddressVerification from "./components/pages/AddressVerification";
 import { Toaster } from "sonner";
 import { cn } from "./lib/utils";
+import { VerificationProvider } from './contexts/VerificationContext'; 
+// 1. IMPORT THE PROVIDER
 
 // Icons
-import { Shield, Home, Search, Users, BarChart3 } from "lucide-react";
+import { Shield, Home, Search } from "lucide-react";
 
-// Main Navigation Component
+// Main Navigation Component (No changes needed here)
 const Navigation = () => {
   const location = useLocation();
   const navItems = [
@@ -49,20 +51,22 @@ const Navigation = () => {
   );
 };
 
-
 // Main App Component
 function App() {
   return (
     <div className="min-h-screen bg-secondary/50">
       <BrowserRouter>
-        <Navigation />
-        <main className="max-w-7xl mx-auto px-6 py-8">
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/verify" element={<AddressVerification />} />
-            {/* Add other routes like /customers here when ready */}
-          </Routes>
-        </main>
+        {/* 2. WRAP YOUR ROUTED COMPONENTS WITH THE PROVIDER */}
+        <VerificationProvider>
+          <Navigation />
+          <main className="max-w-7xl mx-auto px-6 py-8">
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/verify" element={<AddressVerification />} />
+            </Routes>
+          </main>
+        </VerificationProvider>
+        
         <Toaster richColors />
       </BrowserRouter>
     </div>

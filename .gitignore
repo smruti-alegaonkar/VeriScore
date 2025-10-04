@@ -1,33 +1,156 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-
-# testing
-/coverage
-
-# production
-/dist
-/build
-
-# misc
+.gitignore
+This file tells Git which files and folders to ignore in a project.
+It's a good practice to have a comprehensive .gitignore to keep the repository clean.
+#######################
+General / System
+#######################
+Operating System generated files
 .DS_Store
-*.pem
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
 
-# debug
+#######################
+IDE / Editor Config
+#######################
+VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+JetBrains (IntelliJ, PyCharm, WebStorm, etc.)
+.idea/
+
+Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+Atom
+.atom/
+
+#######################
+Language Specific
+#######################
+Node.js / JavaScript
+node_modules/
+dist/
+build/
+.npm/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-
-# local env files
+lerna-debug.log*
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# vercel
-.vercel
+Python
+pycache/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+virtualenv
+.env/
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+Jupyter Notebook
+.ipynb_checkpoints
+
+Java / Maven / Gradle
+*.class
+*.jar
+*.war
+*.ear
+target/
+.gradle/
+build/
+
+Log files
+*.log
+
+C / C++
+*.o
+*.out
+*.exe
+*.dll
+*.so
+
+Ruby / Rails
+.bundle/
+log/
+tmp/
+.byebug_history
+.rspec_status
+/public/system
+/coverage/
+/spec/tmp
+
+Go
+/vendor/
+
+#######################
+Other Tools
+#######################
+Sass
+.sass-cache/
+
+Test & Coverage Reports
+coverage/
+.nyc_output/
+reports/
+
+Archives
+*.zip
+*.tar
+*.gz
+*.rar
+
+#######################
+Sensitive
+#######################
+Secrets and credentials
+secrets.yml
+secrets.json
+*.pem
+.key
+credentials
+*.credentials
+
+You might want to commit lock files for dependency consistency,
+but they can be ignored if your project policy says so.
+package-lock.json
+yarn.lock
+Pipfile.lock
+composer.lock

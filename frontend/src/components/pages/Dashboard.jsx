@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useContext } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Progress } from "../ui/progress";
 import { FileText, CheckCircle, AlertTriangle, XCircle, Clock, BarChart3, RefreshCw } from "lucide-react";
+import { VerificationContext } from "../../contexts/VerificationContext";
+
 
 // Mock API function
 const fetchDashboardStats = () => {
@@ -27,14 +29,29 @@ const fetchDashboardStats = () => {
 };
 
 const Dashboard = () => {
+  
+  // Get the real-time list from the context
+  const { recentVerifications } = useContext(VerificationContext);
+  
+
+  useEffect(() => {
+    loadStats();
+  }, [recentVerifications]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const loadStats = async () => {
     setLoading(true);
-    const data = await fetchDashboardStats();
-    setStats(data);
-    setLoading(false);
+    try {
+      // Fetch data from your REAL backend endpoint
+      const response = await fetch('http://127.0.0.1:5000/api/dashboard-stats');
+      const data = await response.json();
+      setStats(data);
+    } catch (error) {
+      console.error("Failed to fetch dashboard stats:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
