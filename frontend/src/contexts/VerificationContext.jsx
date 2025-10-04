@@ -1,18 +1,24 @@
 // src/contexts/VerificationContext.jsx
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useEffect } from 'react';
 
 export const VerificationContext = createContext();
 
 export const VerificationProvider = ({ children }) => {
-  const [recentVerifications, setRecentVerifications] = useState([]);
+  const [verifications, setVerifications] = useState([]);
 
-  // Function to add a new verification to the top of the list
+  // This function is called by AddressVerification.jsx
   const addVerification = (newVerification) => {
-    setRecentVerifications(prev => [newVerification, ...prev].slice(0, 5)); // Keep only the latest 5
+    // Adds the new result to the top of the list, keeping the last 5
+    setVerifications(prev => [newVerification, ...prev].slice(0, 5));
   };
+  
+  // We can also load initial data here if we want
+  useEffect(() => {
+    // Optional: fetch initial recent verifications when the app loads
+  }, []);
 
   return (
-    <VerificationContext.Provider value={{ recentVerifications, addVerification }}>
+    <VerificationContext.Provider value={{ verifications, addVerification }}>
       {children}
     </VerificationContext.Provider>
   );

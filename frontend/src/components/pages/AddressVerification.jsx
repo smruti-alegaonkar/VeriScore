@@ -1,246 +1,64 @@
-// import React, { useState } from 'react';
-// import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
-// import { Label } from '../ui/label';
-// import { Input } from '../ui/input';
-// import { Button } from '../ui/button';
-// import { Progress } from '../ui/progress';
-// import { Shield, Search, MapPin, Check, X, RefreshCw, BarChart3 } from 'lucide-react';
-// import { toast } from 'sonner';
+import React, { useState, useContext } from "react";
+import { VerificationContext } from "../../contexts/VerificationContext";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "../ui/card";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { Progress } from "../ui/progress";
+import {
+  Shield, Search, MapPin, Check, X, RefreshCw, BarChart3
+} from "lucide-react";
+import { toast } from "sonner";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
-// // Mock API function
-// const verifyAddressAPI = (address) => {
-//   return new Promise((resolve) => {
-//     setTimeout(() => {
-//       const randomScore = Math.random();
-//       let status;
-//       if (randomScore > 0.8) status = "Verified";
-//       else if (randomScore > 0.4) status = "Suspicious";
-//       else status = "Rejected";
-
-//       resolve({
-//         address,
-//         confidence: randomScore,
-//         status: status,
-//         breakdown: [
-//           { source: 'Google Maps API', match: randomScore > 0.3 },
-//           { source: 'National Postal Service', match: randomScore > 0.5 },
-//           { source: 'Public Records Database', match: randomScore > 0.7 },
-//         ],
-//       });
-//     }, 1500);
-//   });
-// };
-
-// const AddressVerification = () => {
-//   const [address, setAddress] = useState('');
-//   const [loading, setLoading] = useState(false);
-//   const [result, setResult] = useState(null);
-
-//   const handleVerify = async () => {
-//     if (!address) {
-//       toast.error("Please enter an address to verify.");
-//       return;
-//     }
-//     setLoading(true);
-//     setResult(null);
-//     const data = await verifyAddressAPI(address);
-//     setResult(data);
-//     setLoading(false);
-//     toast.success("Verification complete!");
-//   };
-
-//   const getConfidenceColor = (score) => {
-//     if (score > 0.8) return "text-green-500";
-//     if (score > 0.4) return "text-amber-500";
-//     return "text-red-500";
-//   };
-  
-//   const getProgressColor = (score) => {
-//     if (score > 0.8) return "[&>*]:bg-green-500";
-//     if (score > 0.4) return "[&>*]:bg-amber-500";
-//     return "[&>*]:bg-red-500";
-//   }
-
-//   return (
-//     <div className="space-y-8">
-//         <div>
-//             <h1 className="text-3xl font-bold">Single Address Verification</h1>
-//             <p className="text-muted-foreground">Verify a single address using our multi-source engine.</p>
-//         </div>
-//         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-//             <Card>
-//                 <CardHeader>
-//                     <CardTitle className="flex items-center"><Search className="mr-2 h-5 w-5" />Verification Input</CardTitle>
-//                     <CardDescription>Enter the address you want to check.</CardDescription>
-//                 </CardHeader>
-//                 <CardContent className="space-y-4">
-//                     <div className="space-y-2">
-//                         <Label htmlFor="address">Full Address</Label>
-//                         <Input 
-//                             id="address" 
-//                             placeholder="e.g., 1600 Amphitheatre Parkway, Mountain View, CA" 
-//                             value={address}
-//                             onChange={(e) => setAddress(e.target.value)}
-//                         />
-//                     </div>
-//                     <Button onClick={handleVerify} disabled={loading} className="w-full">
-//                         {loading ? (
-//                             <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-//                         ) : (
-//                             <Shield className="mr-2 h-4 w-4" />
-//                         )}
-//                         {loading ? 'Verifying...' : 'Verify Address'}
-//                     </Button>
-//                 </CardContent>
-//             </Card>
-
-//             <Card className="flex flex-col">
-//                 <CardHeader>
-//                     <CardTitle className="flex items-center"><BarChart3 className="mr-2 h-5 w-5" />Verification Result</CardTitle>
-//                     <CardDescription>Detailed analysis from our data sources.</CardDescription>
-//                 </CardHeader>
-//                 <CardContent className="flex-grow flex items-center justify-center">
-//                     {!result && !loading && (
-//                         <div className="text-center text-muted-foreground">
-//                             <MapPin className="mx-auto h-12 w-12" />
-//                             <p className="mt-2">Results will be displayed here.</p>
-//                         </div>
-//                     )}
-//                     {loading && (
-//                          <div className="text-center text-primary">
-//                             <RefreshCw className="mx-auto h-12 w-12 animate-spin" />
-//                             <p className="mt-2 font-semibold">Analyzing...</p>
-//                         </div>
-//                     )}
-//                     {result && (
-//                         <div className="w-full space-y-6">
-//                             <div className="text-center border rounded-lg p-6">
-//                                 <h3 className="text-sm font-medium text-muted-foreground">Confidence Score</h3>
-//                                 <p className={`text-6xl font-bold ${getConfidenceColor(result.confidence)}`}>
-//                                     {(result.confidence * 100).toFixed(0)}%
-//                                 </p>
-//                                 <Progress value={result.confidence * 100} className={`h-2 mt-2 ${getProgressColor(result.confidence)}`} />
-//                                 <p className="mt-2 text-lg font-semibold">{result.status}</p>
-//                             </div>
-
-//                             <div>
-//                                 <h4 className="font-semibold mb-2">Score Breakdown</h4>
-//                                 <div className="space-y-2">
-//                                     {result.breakdown.map((item, index) => (
-//                                         <div key={index} className="flex justify-between items-center p-3 rounded-md bg-secondary">
-//                                             <p className="text-sm font-medium">{item.source}</p>
-//                                             {item.match ? (
-//                                                 <div className="flex items-center text-green-600">
-//                                                     <Check className="h-4 w-4 mr-1" />
-//                                                     <span className="text-sm">Match</span>
-//                                                 </div>
-//                                             ) : (
-//                                                 <div className="flex items-center text-red-600">
-//                                                     <X className="h-4 w-4 mr-1" />
-//                                                     <span className="text-sm">Mismatch</span>
-//                                                 </div>
-//                                             )}
-//                                         </div>
-//                                     ))}
-//                                 </div>
-//                             </div>
-//                         </div>
-//                     )}
-//                 </CardContent>
-//             </Card>
-//         </div>
-//     </div>
-//   );
-// };
-
-// export default AddressVerification;
-
-import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../ui/card';
-import { Label } from '../ui/label';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
-import { Progress } from '../ui/progress';
-import { Shield, Search, MapPin, Check, X, RefreshCw, BarChart3 } from 'lucide-react';
-import { toast } from 'sonner';
-import { useContext } from 'react';
-import { VerificationContext } from '../../contexts/VerificationContext';
-
-
-
-// ==============================================================================
-// 1. HELPER FUNCTION TO MAP BACKEND DATA TO THE UI'S EXPECTED FORMAT
-// ==============================================================================
-const formatBackendResponse = (backendData) => {
-  const score = backendData.confidence_score / 100; // Convert 0-100 score to 0-1
-  
-  let status;
-  if (score > 0.8) status = "Verified";
-  else if (score > 0.4) status = "Suspicious";
-  else status = "Rejected";
-
-  // Create a dynamic breakdown based on what the parser found
-  const breakdown = [];
-  if (backendData.pincode) {
-    breakdown.push({ source: 'Pincode Found', match: true });
-  }
-  if (backendData.landmark) {
-    breakdown.push({ source: 'Landmark Identified', match: true });
-  }
-  if (backendData.sector_block_info) {
-    breakdown.push({ source: 'Sector/Block Identified', match: true });
-  }
-  if (backendData.village) {
-    breakdown.push({ source: 'Village Identified', match: true });
-  }
+const formatVerifierResponse = (backendData) => {
+  const score = backendData.confidence_score / 100.0;
+  const breakdown = (backendData.findings || []).map(finding => ({
+    source: `${finding.source}: ${finding.note}`,
+    match: !finding.note.toLowerCase().includes("no match"),
+  }));
 
   return {
-    address: backendData.raw_address,
+    address: backendData.address,
     confidence: score,
-    status: status,
     breakdown: breakdown,
+    rawFindings: backendData.findings,
   };
 };
 
 const AddressVerification = () => {
-  const [address, setAddress] = useState('');
+  const [companyName, setCompanyName] = useState("");
+  const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-
-  // 2. GET THE addVerification FUNCTION FROM THE CONTEXT
   const { addVerification } = useContext(VerificationContext);
 
   const handleVerify = async () => {
-    if (!address) {
-      toast.error("Please enter an address to verify.");
+    if (!companyName || !address) {
+      toast.error("Please enter both a company name and an address.");
       return;
     }
     setLoading(true);
     setResult(null);
-
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/verify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ address: address }),
+      const response = await fetch("http://127.0.0.1:5000/api/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ company_name: companyName, address }),
       });
-
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-
+      if (!response.ok) throw new Error("Network response was not ok");
       const backendData = await response.json();
-      const formattedData = formatBackendResponse(backendData);
-      
+      const formattedData = formatVerifierResponse(backendData);
       setResult(formattedData);
-
-      // 3. SEND THE RESULT TO THE SHARED DASHBOARD STATE
       addVerification(formattedData);
-      
       toast.success("Verification complete!");
-
     } catch (error) {
       console.error("Failed to verify address:", error);
       toast.error("Verification failed. Please check the backend server.");
@@ -254,98 +72,152 @@ const AddressVerification = () => {
     if (score > 0.4) return "text-amber-500";
     return "text-red-500";
   };
-  
+
   const getProgressColor = (score) => {
     if (score > 0.8) return "[&>*]:bg-green-500";
     if (score > 0.4) return "[&>*]:bg-amber-500";
     return "[&>*]:bg-red-500";
-  }
+  };
 
-  // The rest of your JSX remains exactly the same. No changes needed below.
   return (
-    <div className="space-y-8">
-      {/* ... your existing JSX code ... */}
-      {/* Input Card */}
+    <div className="space-y-8 px-2 md:px-4 py-4 max-w-4xl mx-auto">
+      <div>
+        <h1 className="text-3xl font-extrabold mb-1">Single Address Verification</h1>
+        <p className="text-muted-foreground text-base">
+          Verify a company at an address using our multi-source engine.
+        </p>
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Card>
+        {/* Input Card */}
+        <Card className="shadow-lg rounded-xl">
           <CardHeader>
-              <CardTitle className="flex items-center"><Search className="mr-2 h-5 w-5" />Verification Input</CardTitle>
-              <CardDescription>Enter the address you want to check.</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <Search className="h-5 w-5" />
+              Verification Input
+            </CardTitle>
+            <CardDescription>
+              Enter the company and address you want to check.
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-              <div className="space-y-2">
-                  <Label htmlFor="address">Full Address</Label>
-                  <Input 
-                      id="address" 
-                      placeholder="e.g., Plot 15, Sector 17, Vashi, Navi Mumbai" 
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                  />
-              </div>
-              <Button onClick={handleVerify} disabled={loading} className="w-full">
-                  {loading ? (
-                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                      <Shield className="mr-2 h-4 w-4" />
-                  )}
-                  {loading ? 'Verifying...' : 'Verify Address'}
-              </Button>
+          <CardContent className="space-y-5">
+            <div className="space-y-3">
+              <Label htmlFor="company-name">Company Name</Label>
+              <Input
+                id="company-name"
+                placeholder="e.g., Google LLC"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                disabled={loading}
+              />
+            </div>
+            <div className="space-y-3">
+              <Label htmlFor="address">Full Address</Label>
+              <Input
+                id="address"
+                placeholder="e.g., 1600 Amphitheatre Parkway, Mountain View, CA"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                disabled={loading}
+              />
+            </div>
+            <Button
+              onClick={handleVerify}
+              disabled={loading}
+              className="w-full mt-2"
+            >
+              {loading ? (
+                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Shield className="mr-2 h-4 w-4" />
+              )}
+              {loading ? "Verifying..." : "Verify Address"}
+            </Button>
           </CardContent>
         </Card>
 
         {/* Result Card */}
-        <Card className="flex flex-col">
+        <Card className="flex flex-col shadow-lg rounded-xl min-h-[320px]">
           <CardHeader>
-              <CardTitle className="flex items-center"><BarChart3 className="mr-2 h-5 w-5" />Verification Result</CardTitle>
-              <CardDescription>Detailed analysis from our data sources.</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5" />
+              Verification Result
+            </CardTitle>
+            <CardDescription>
+              Detailed analysis from our data sources.
+            </CardDescription>
           </CardHeader>
           <CardContent className="flex-grow flex items-center justify-center">
-              {!result && !loading && (
-                  <div className="text-center text-muted-foreground">
-                      <MapPin className="mx-auto h-12 w-12" />
-                      <p className="mt-2">Results will be displayed here.</p>
-                  </div>
-              )}
-              {loading && (
-                   <div className="text-center text-primary">
-                      <RefreshCw className="mx-auto h-12 w-12 animate-spin" />
-                      <p className="mt-2 font-semibold">Analyzing...</p>
-                  </div>
-              )}
-              {result && (
-                  <div className="w-full space-y-6">
-                      <div className="text-center border rounded-lg p-6">
-                          <h3 className="text-sm font-medium text-muted-foreground">Confidence Score</h3>
-                          <p className={`text-6xl font-bold ${getConfidenceColor(result.confidence)}`}>
-                              {(result.confidence * 100).toFixed(0)}%
-                          </p>
-                          <Progress value={result.confidence * 100} className={`h-2 mt-2 ${getProgressColor(result.confidence)}`} />
-                          <p className="mt-2 text-lg font-semibold">{result.status}</p>
-                      </div>
+            {/* State 1: Initial Placeholder */}
+            {!result && !loading && (
+              <div className="text-center text-muted-foreground py-8">
+                <MapPin className="mx-auto h-12 w-12 opacity-60" />
+                <p className="mt-2">Results will be displayed here.</p>
+              </div>
+            )}
 
-                      <div>
-                          <h4 className="font-semibold mb-2">Score Breakdown</h4>
-                          <div className="space-y-2">
-                              {result.breakdown.map((item, index) => (
-                                  <div key={index} className="flex justify-between items-center p-3 rounded-md bg-secondary">
-                                      <p className="text-sm font-medium">{item.source}</p>
-                                      {item.match ? (
-                                          <div className="flex items-center text-green-600">
-                                              <Check className="h-4 w-4 mr-1" />
-                                              <span className="text-sm">Match</span>
-                                          </div>
-                                      ) : (
-                                          <div className="flex items-center text-red-600">
-                                              <X className="h-4 w-4 mr-1" />
-                                              <span className="text-sm">Mismatch</span>
-                                          </div>
-                                      )}
-                                  </div>
-                              ))}
-                          </div>
-                      </div>
+            {/* State 2: Loading (Skeleton for smoother feel) */}
+            {loading && (
+              <div className="w-full space-y-6">
+                <div className="text-center border rounded-lg p-6">
+                  <h3 className="text-sm font-medium text-muted-foreground mb-2">
+                    Confidence Score
+                  </h3>
+                  <Skeleton height={50} width={90} style={{ margin: "0 auto" }} />
+                  <Skeleton height={12} width="100%" className="mt-2" />
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">
+                    <Skeleton width={150} />
+                  </h4>
+                  <div className="space-y-2">
+                    <Skeleton height={45} />
+                    <Skeleton height={45} />
                   </div>
-              )}
+                </div>
+              </div>
+            )}
+
+            {/* State 3: Display Results */}
+            {result && !loading && (
+              <div className="w-full space-y-6">
+                <div className="text-center border rounded-lg p-6 bg-muted/40">
+                  <h3 className="text-sm font-medium text-muted-foreground mb-2">
+                    Confidence Score
+                  </h3>
+                  <p className={`text-6xl font-bold ${getConfidenceColor(result.confidence)}`}>
+                    {(result.confidence * 100).toFixed(0)}
+                  </p>
+                  <Progress
+                    value={result.confidence * 100}
+                    className={`h-2 mt-2 transition-all duration-300 ease-in ${getProgressColor(result.confidence)}`}
+                  />
+                </div>
+                <div>
+                  <h4 className="font-semibold mb-2">Score Breakdown</h4>
+                  <div className="space-y-2">
+                    {result.breakdown.map((item, index) => (
+                      <div
+                        key={index}
+                        className="flex justify-between items-center p-3 rounded-md bg-secondary/70"
+                      >
+                        <p className="text-sm font-medium">{item.source}</p>
+                        {item.match ? (
+                          <div className="flex items-center text-green-600">
+                            <Check className="h-4 w-4 mr-1" />
+                            <span className="text-sm">Match</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center text-red-600">
+                            <X className="h-4 w-4 mr-1" />
+                            <span className="text-sm">Mismatch</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

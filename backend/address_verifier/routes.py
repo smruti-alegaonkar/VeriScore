@@ -1,47 +1,52 @@
 # address_verifier/routes.py
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
+import time
+from .verifier import verify_address
 
-# --- Imports for BOTH functionalities ---
-from .parser import parse_full_address  # Your function for parsing
-from .verifier import verify_address    # My function for verification
-
-# Create a 'Blueprint' to organize all the routes
 api = Blueprint('api', __name__)
 
-# --- Route for PARSING an address into components ---
-# NOTE: I've moved your original '/verify' route to '/parse' to avoid a conflict.
-@api.route('/parse', methods=['POST'])
-def parse_address_endpoint():
-    """
-    Takes a raw address string and returns its structured components.
-    """
-    data = request.get_json()
-    if not data or 'address' not in data:
-        return jsonify({"error": "Address not provided"}), 400
-
-    raw_address = data['address']
-    # Call your parser function from parser.py
-    structured_data = parse_full_address(raw_address)
-    return jsonify(structured_data)
-
-# --- Route for VERIFYING a company at an address ---
-# This is the endpoint your index.html file will call.
 @api.route('/verify', methods=['POST'])
-def verify_company_endpoint():
-    """
-    Takes a company name and address, and returns a confidence score.
-    """
+def verify_endpoint():
     user_ip = request.remote_addr
     data = request.get_json()
 
     if not data or "company_name" not in data or "address" not in data:
-        return jsonify({"error": "Missing company_name or address in request body"}), 400
+        return jsonify({"error": "Missing company_name or address"}), 400
 
     company = data["company_name"]
     address = data["address"]
     
-    # Call the verification logic from verifier.py
+    # 1. Call the verification logic from verifier.py
     result = verify_address(company, address, user_ip)
     
+    # 2. Save the result for the dashboard
+    score = result['confidence_score']
+    result_to_save = {
+        "id": len(current_app.verifications_db) + 1,
+        "address": f"{company}, {address}",
+        "status": "verified" if score >= 80 else "suspicious" if score >= 40 else "rejected",
+        "confidence": score / 100.0,
+        "timestamp": time.time()
+    }
+    current_app.verifications_db.append(result_to_save)
+    
+    # 3. Return the detailed verification result
     return jsonify(result)
 
+@api.route('/dashboard-stats', methods=['GET'])
+def get_dashboard_stats():
+    db = current_app.verifications_db
+    total = len(db)
+    verified = sum(1 for v in db if v['status'] == 'verified')
+    suspicious = sum(1 for v in db if v['status'] == 'suspicious')
+    rejected = sum(1 for v in db if v['status'] == 'rejected')
+    rate = (verified / total * 100) if total > 0 else 0
+    
+    recent = sorted(db, key=lambda x: x['timestamp'], reverse=True)[:5]
+
+    stats = {
+        "total_verifications": total, "verified_count": verified,
+        "suspicious_count": suspicious, "rejected_count": rejected,
+        "verification_rate": rate, "recent_verifications": recent
+    }
+    return jsonify(stats)
