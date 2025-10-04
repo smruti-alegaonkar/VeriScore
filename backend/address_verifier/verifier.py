@@ -15,14 +15,14 @@ API_KEY = os.getenv("GOOGLE_API_KEY")
 GENERAL_CX = os.getenv("GENERAL_SEARCH_CX")
 GOV_CX = os.getenv("GOV_SEARCH_CX")
 
-def verify_address(company_name, address, user_ip):
-    """Verifies a business address using multiple signals."""
+# def verify_address(company_name, address, user_ip):
+    # """Verifies a business address using multiple signals."""
     
     # --- NEW: Initialize the client here, after secrets are loaded ---
-    gmaps = googlemaps.Client(key=os.getenv("GOOGLE_API_KEY"))
+    # gmaps = googlemaps.Client(key=os.getenv("GOOGLE_API_KEY"))
     
-    confidence_score = 0
-    findings = []
+    # confidence_score = 0
+#    findings = []
 
 def google_search(query, search_engine_id):
     """Performs a Google search using the Custom Search API."""

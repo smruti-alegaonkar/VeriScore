@@ -5,6 +5,8 @@ from .verifier import verify_address
 from flask import send_file
 from fpdf import FPDF
 import io
+# Add this at the top with the other imports if it's not there
+from flask import jsonify 
 
 api = Blueprint('api', __name__)
 
@@ -32,7 +34,8 @@ def verify_endpoint():
         "timestamp": time.time()
     }
     current_app.verifications_db.append(result_to_save)
-    
+    result['id'] = result_to_save['id']
+
     # 3. Return the detailed verification result
     return jsonify(result)
 
@@ -94,3 +97,8 @@ def get_verification_report(verification_id):
         as_attachment=True,
         download_name=f'VeriScore_Report_{verification_id}.pdf'
     )
+
+# Add this new function with the other @api.route definitions
+@api.route('/')
+def index():
+    return jsonify({"status": "ok", "message": "VeriScore API is running!"})

@@ -24,19 +24,21 @@ import { toast } from "sonner";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 
+// This is the CORRECTED version
 const formatVerifierResponse = (backendData) => {
-	const score = backendData.confidence_score / 100.0;
-	const breakdown = (backendData.findings || []).map((finding) => ({
-		source: `${finding.source}: ${finding.note}`,
-		match: !finding.note.toLowerCase().includes("no match"),
-	}));
+    const score = backendData.confidence_score / 100.0;
+    const breakdown = (backendData.findings || []).map((finding) => ({
+        source: `${finding.source}: ${finding.note}`,
+        match: !finding.note.toLowerCase().includes("no match"),
+    }));
 
-	return {
-		address: backendData.address,
-		confidence: score,
-		breakdown: breakdown,
-		rawFindings: backendData.findings,
-	};
+    return {
+        id: backendData.id, // <-- THIS IS THE FIX
+        address: backendData.address,
+        confidence: score,
+        breakdown: breakdown,
+        rawFindings: backendData.findings,
+    };
 };
 
 const AddressVerification = () => {
