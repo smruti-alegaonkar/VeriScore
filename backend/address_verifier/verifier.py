@@ -36,40 +36,40 @@ def google_search(query, search_engine_id):
 
 
 def verify_with_google_places(company_name, address):
-    """
-    Uses Google Places API and checks if the returned business name is a close match.
-    """
-    # --- START DEBUGGING ---
     print("\n" + "="*50)
     print("--- DEBUGGING: Inside verify_with_google_places ---")
-    
+
     if not API_KEY or API_KEY == "YOUR_GOOGLE_API_KEY" or not API_KEY.strip():
         print("DEBUG: Google API Key is missing or empty.")
         print("="*50 + "\n")
         return False, "Google API Key not configured"
 
-    search_query = f"{company_name} in {address}"
-    endpoint = "https://maps.googleapis.com/maps/api/place/textsearch/json"
-    params = {'query': search_query, 'key': API_KEY}
-    
+    search_query = f"{company_name} {address}"
+    endpoint = "https://maps.googleapis.com/maps/api/place/findplacefromtext/json"
+    params = {
+        'input': search_query,
+        'inputtype': 'textquery',
+        'fields': 'name',
+        'key': API_KEY
+    }
+
     print(f"DEBUG: Sending query to Google: {search_query}")
-    
+
     try:
         response = requests.get(endpoint, params=params)
         results = response.json()
 
-        # Print the entire raw response from Google
         print("DEBUG: Raw Google API Response:")
         print(results)
         print("-"*20)
 
-        if results.get("status") == "OK" and results.get("results"):
-            top_result_name = results["results"][0].get("name", "")
+        if results.get("status") == "OK" and results.get("candidates"):
+            top_result_name = results["candidates"][0].get("name", "")
             print(f"DEBUG: Top result name from Google: '{top_result_name}'")
 
             similarity_score = fuzz.token_set_ratio(company_name.lower(), top_result_name.lower())
             print(f"DEBUG: Fuzzy match score between '{company_name}' and '{top_result_name}': {similarity_score}%")
-            
+
             if similarity_score > 85:
                 print("DEBUG: Match SUCCESSFUL (Similarity > 85%)")
                 print("="*50 + "\n")
@@ -82,11 +82,13 @@ def verify_with_google_places(company_name, address):
             print(f"DEBUG: Google API returned status '{results.get('status')}' with no results.")
             print("="*50 + "\n")
             return False, f"No business found on Google Maps. (API Status: {results.get('status')})"
-            
+
     except Exception as e:
         print(f"DEBUG: An exception occurred: {e}")
         print("="*50 + "\n")
         return False, f"Google API error: {e}"
+    
+    
 # ==============================================================================
 # FINAL, CORRECTED SCORING LOGIC
 # ==============================================================================

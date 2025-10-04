@@ -2,6 +2,9 @@
 from flask import Blueprint, request, jsonify, current_app
 import time
 from .verifier import verify_address
+from flask import send_file
+from fpdf import FPDF
+import io
 
 api = Blueprint('api', __name__)
 
@@ -50,3 +53,44 @@ def get_dashboard_stats():
         "verification_rate": rate, "recent_verifications": recent
     }
     return jsonify(stats)
+
+@api.route('/get-report/<int:verification_id>', methods=['GET'])
+def get_verification_report(verification_id):
+    # Find the verification result in our "database"
+    verification = next((item for item in current_app.verifications_db if item["id"] == verification_id), None)
+
+    if not verification:
+        return jsonify({"error": "Verification not found"}), 404
+
+    # --- PDF Generation Logic ---
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Helvetica", "B", 16)
+    
+    # Title
+    pdf.cell(0, 10, "Verification Report", ln=True, align='C')
+    pdf.ln(10)
+
+    # Main Details
+    pdf.set_font("Helvetica", "B", 12)
+    pdf.cell(0, 10, f"Company: {verification.get('address').split(',')[0]}", ln=True)
+    pdf.set_font("Helvetica", "", 12)
+    pdf.multi_cell(0, 10, f"Address: {verification.get('address')}")
+    pdf.ln(5)
+
+    # Confidence Score
+    pdf.set_font("Helvetica", "B", 12)
+    pdf.cell(0, 10, f"Final Confidence Score: {int(verification.get('confidence') * 100)}%", ln=True)
+    pdf.ln(10)
+    
+    # For a full report, you'd add the 'findings' breakdown here
+    # This is a great place to expand if you have time.
+
+    # --- Create a downloadable file in memory ---
+    pdf_bytes = pdf.output(dest='S').encode('latin-1')
+    return send_file(
+        io.BytesIO(pdf_bytes),
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name=f'VeriScore_Report_{verification_id}.pdf'
+    )
